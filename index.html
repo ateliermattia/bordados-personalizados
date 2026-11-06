@@ -103,57 +103,6 @@
       margin: 0 auto;
     }
 
-    /* Galería Visual con las Categorías de Matías */
-    .gallery-section {
-      margin: 20px 0;
-    }
-
-    .gallery-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-    }
-
-    .gallery-card {
-      background: rgba(25, 10, 4, 0.6);
-      border: 1px solid rgba(232, 213, 188, 0.25);
-      border-radius: 12px;
-      overflow: hidden;
-      text-align: center;
-      transition: transform 0.2s ease;
-    }
-
-    .gallery-card:hover {
-      transform: translateY(-3px);
-      border-color: var(--gold-bright);
-    }
-
-    .gallery-img-wrap {
-      height: 150px;
-      background: #221006;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .gallery-img-wrap img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .gallery-caption {
-      padding: 10px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--gold-bright);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      background: rgba(0,0,0,0.3);
-    }
-
     /* Tarjetas KPI Superiores en Vivo */
     .kpi-strip {
       display: grid;
@@ -492,7 +441,6 @@
 
     @media (max-width: 640px) {
       .kpi-strip, .scales-grid { grid-template-columns: repeat(2, 1fr); }
-      .gallery-grid { grid-template-columns: 1fr; }
       .options-grid { grid-template-columns: 1fr; }
       .carta-sheet { padding: 36px 14px 26px; }
     }
@@ -509,41 +457,11 @@
     <header class="carta-header">
       <h1 class="carta-title">Carta Digital</h1>
       <p class="carta-subtitle">— Creaciones a la carta de Atelier Mattia —</p>
-      <div class="carta-banner">Cotizador Interactivo &amp; Trabajos Realizados</div>
+      <div class="carta-banner">Cotizador Interactivo de Bordados &amp; Escudos</div>
       <div class="matias-greeting">
-        ¡Hola! Soy <strong>Matías</strong>. Mirá abajo nuestros trabajos y simulá al instante el presupuesto de tus parches.
+        ¡Hola! Soy <strong>Matías</strong>. Deslizá las barras para simular tu pedido en vivo según nuestra Carta Digital (sin mínimo de cantidad) y enviame el resumen directo por WhatsApp.
       </div>
     </header>
-
-    <!-- GALERÍA DE TRABAJOS CON TUS FOTOS Y ETIQUETAS -->
-    <section class="gallery-section">
-      <div class="gallery-grid">
-        <div class="gallery-card">
-          <div class="gallery-img-wrap">
-            <!-- Reemplazá 'infinity.jpg' por el nombre de tu archivo de imagen en el repositorio -->
-            <img src="infinity.jpeg" alt="Parches Empresariales Infinity" onerror="this.style.display='none';this.nextElementSibling.style.display='block';" />
-            <div style="display:none; padding:10px; font-size:0.8rem; color:#E8D5BC;">[Imagen Infinity: infinity.jpg]</div>
-          </div>
-          <div class="gallery-caption">Empresarial</div>
-        </div>
-        <div class="gallery-card">
-          <div class="gallery-img-wrap">
-            <!-- Reemplazá 'hospital.jpeg' por el nombre de tu archivo de imagen en el repositorio -->
-            <img src="hospital.jpeg" alt="Parches Institucionales Hospital" onerror="this.style.display='none';this.nextElementSibling.style.display='block';" />
-            <div style="display:none; padding:10px; font-size:0.8rem; color:#E8D5BC;">[Imagen Hospital: hospital.jpg]</div>
-          </div>
-          <div class="gallery-caption">Institucional</div>
-        </div>
-        <div class="gallery-card">
-          <div class="gallery-img-wrap">
-            <!-- Reemplazá 'escudo.jpeg' por el nombre de tu archivo de imagen en el repositorio -->
-            <img src="escudo.jpeg" alt="Escudos y Clubes" onerror="this.style.display='none';this.nextElementSibling.style.display='block';" />
-            <div style="display:none; padding:10px; font-size:0.8rem; color:#E8D5BC;">[Imagen Escudo: escudo.jpg]</div>
-          </div>
-          <div class="gallery-caption">Escudos / Clubes</div>
-        </div>
-      </div>
-    </section>
 
     <!-- KPIs Interactivos -->
     <div class="kpi-strip">
