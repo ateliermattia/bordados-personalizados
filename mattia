@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carta Digital Interactiva — Atelier Mattia</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --brown-deep: #4A2411;
+      --brown-darker: #2D1408;
+      --brown-card: #3B1B0C;
+      --cream-ornament: #E8D5BC;
+      --cream-soft: #FAF3E8;
+      --gold-highlight: #D9A75A;
+      --gold-bright: #F2C478;
+      --green-free: #8CE99A;
+      --whatsapp-green: #25D366;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: radial-gradient(circle at 50% 10%, #5A2D16 0%, #381A0B 60%, #240F05 100%);
+      color: var(--cream-soft);
+      min-height: 100vh;
+      padding: 20px 12px 48px;
+      line-height: 1.5;
+    }
+
+    .carta-sheet {
+      max-width: 860px;
+      margin: 0 auto;
+      background-color: var(--brown-deep);
+      border: 1.5px solid rgba(232, 213, 188, 0.32);
+      border-radius: 18px;
+      padding: 46px 34px 38px;
+      position: relative;
+      box-shadow: 0 26px 64px rgba(0, 0, 0, 0.6);
+      overflow: hidden;
+    }
+
+    .corner-ornament {
+      position: absolute;
+      width: 84px;
+      height: 84px;
+      pointer-events: none;
+      opacity: 0.9;
+    }
+    .corner-tl { top: 12px; left: 12px; }
+    .corner-tr { top: 12px; right: 12px; transform: scaleX(-1); }
+    .corner-bl { bottom: 12px; left: 12px; transform: scaleY(-1); }
+    .corner-br { bottom: 12px; right: 12px; transform: scale(-1, -1); }
+
+    .carta-header {
+      text-align: center;
+      margin-bottom: 22px;
+      padding: 0 20px;
+    }
+
+    .carta-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: var(--cream-soft);
+      line-height: 1.05;
+    }
+
+    .carta-subtitle {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1.2rem;
+      color: var(--cream-ornament);
+      margin: 4px 0 12px;
+    }
+
+    .carta-banner {
+      display: inline-block;
+      border-top: 1px solid rgba(232, 213, 188, 0.45);
+      border-bottom: 1px solid rgba(232, 213, 188, 0.45);
+      padding: 6px 18px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gold-bright);
+      margin-bottom: 10px;
+    }
+
+    .matias-greeting {
+      background: rgba(255, 248, 237, 0.07);
+      border: 1px solid rgba(232, 213, 188, 0.25);
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-size: 0.85rem;
+      color: var(--cream-soft);
+      max-width: 650px;
+      margin: 0 auto;
+    }
+
+    /* Tarjetas KPI Superiores en Vivo */
+    .kpi-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .kpi-card {
+      background: rgba(25, 10, 4, 0.58);
+      border: 1px solid rgba(242, 196, 120, 0.35);
+      border-radius: 12px;
+      padding: 12px 10px;
+      text-align: center;
+    }
+
+    .kpi-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--cream-ornament);
+      margin-bottom: 4px;
+    }
+
+    .kpi-val {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.55rem;
+      font-weight: 700;
+      color: var(--gold-bright);
+      line-height: 1.1;
+    }
+
+    .kpi-sub {
+      font-size: 0.72rem;
+      color: var(--cream-soft);
+      opacity: 0.85;
+      margin-top: 2px;
+    }
+
+    .section-block {
+      background: rgba(34, 15, 6, 0.45);
+      border: 1px solid rgba(232, 213, 188, 0.22);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .section-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--gold-bright);
+      border-bottom: 1px solid rgba(232, 213, 188, 0.18);
+      padding-bottom: 6px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .badge-pill {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.74rem;
+      font-weight: 700;
+      background: rgba(242, 196, 120, 0.18);
+      color: var(--gold-bright);
+      border: 1px solid rgba(242, 196, 120, 0.45);
+      padding: 3px 11px;
+      border-radius: 999px;
+    }
+
+    .scales-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .scale-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1.5px solid rgba(232, 213, 188, 0.22);
+      border-radius: 12px;
+      padding: 10px 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .scale-card.active {
+      background: rgba(217, 167, 90, 0.25);
+      border-color: var(--gold-bright);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+    }
+
+    .scale-title { font-size: 0.7rem; text-transform: uppercase; color: var(--cream-ornament); font-weight: 700; }
+    .scale-units { font-size: 0.8rem; color: #fff; font-weight: 600; margin: 2px 0 4px; }
+    .scale-amount { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 700; color: var(--gold-bright); }
+
+    .presets-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .preset-chip {
+      background: rgba(232, 213, 188, 0.1);
+      border: 1px solid rgba(232, 213, 188, 0.3);
+      color: var(--cream-soft);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.77rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .preset-chip:hover {
+      background: rgba(242, 196, 120, 0.24);
+      border-color: var(--gold-bright);
+    }
+
+    /* Filas interactivas con Slider + Input */
+    .design-row {
+      background: rgba(255, 248, 237, 0.06);
+      border: 1px solid rgba(232, 213, 188, 0.24);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+    }
+
+    .design-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .design-name-input {
+      background: rgba(0, 0, 0, 0.28);
+      border: 1px solid rgba(232, 213, 188, 0.35);
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 8px;
+      width: 160px;
+    }
+
+    .matrix-pill {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+    }
+    .matrix-pill.free { background: rgba(140, 233, 154, 0.18); color: var(--green-free); border: 1px solid rgba(140, 233, 154, 0.4); }
+    .matrix-pill.paid { background: rgba(242, 196, 120, 0.15); color: var(--gold-bright); border: 1px solid rgba(242, 196, 120, 0.35); }
+
+    .slider-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .qty-slider {
+      flex: 1;
+      accent-color: var(--gold-highlight);
+      height: 6px;
+      cursor: pointer;
+    }
+
+    .qty-step-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid rgba(232, 213, 188, 0.4);
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .qty-number-input {
+      width: 64px;
+      height: 32px;
+      text-align: center;
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(232, 213, 188, 0.4);
+      border-radius: 8px;
+    }
+
+    .add-design-button {
+      width: 100%;
+      background: transparent;
+      border: 1.5px dashed rgba(242, 196, 120, 0.55);
+      color: var(--gold-bright);
+      padding: 9px;
+      border-radius: 10px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .field-label { font-size: 0.78rem; font-weight: 600; color: var(--cream-ornament); margin-bottom: 5px; display: block; }
+
+    .toggle-group {
+      display: flex;
+      background: rgba(0, 0, 0, 0.32);
+      border: 1px solid rgba(232, 213, 188, 0.25);
+      border-radius: 10px;
+      padding: 3px;
+    }
+
+    .toggle-group button {
+      flex: 1;
+      border: none;
+      background: transparent;
+      color: var(--cream-ornament);
+      padding: 8px 6px;
+      font-size: 0.79rem;
+      font-weight: 600;
+      border-radius: 7px;
+      cursor: pointer;
+    }
+
+    .toggle-group button.active {
+      background: var(--gold-highlight);
+      color: #241007;
+      font-weight: 700;
+    }
+
+    .scale-alert {
+      background: rgba(242, 196, 120, 0.16);
+      border: 1.5px solid var(--gold-bright);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      font-size: 0.85rem;
+      color: #FFF5E4;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .jump-btn {
+      background: var(--gold-bright);
+      color: #241007;
+      border: none;
+      padding: 7px 13px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.78rem;
+      cursor: pointer;
+    }
+
+    .quote-summary-card {
+      background: linear-gradient(180deg, rgba(28, 12, 5, 0.75) 0%, rgba(18, 7, 2, 0.9) 100%);
+      border: 1.5px solid var(--gold-highlight);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .summary-line {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(232, 213, 188, 0.12);
+      font-size: 0.9rem;
+    }
+
+    .summary-line.iva-row {
+      background: rgba(242, 196, 120, 0.12);
+      padding: 8px 10px;
+      margin: 4px -10px;
+      border-radius: 8px;
+      border-bottom: none;
+      color: var(--gold-bright);
+      font-weight: 700;
+    }
+
+    .summary-line.grand-total {
+      border-bottom: none;
+      border-top: 1.5px solid var(--gold-bright);
+      margin-top: 8px;
+      padding-top: 12px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .chart-box {
+      height: 250px;
+      margin-top: 10px;
+    }
+
+    .btn-whatsapp {
+      width: 100%;
+      background: var(--whatsapp-green);
+      color: #0B2212;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 20px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-bottom: 8px;
+    }
+
+    .btn-secondary-copy {
+      width: 100%;
+      background: transparent;
+      border: 1px solid rgba(232, 213, 188, 0.35);
+      color: var(--cream-ornament);
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    @media (max-width: 640px) {
+      .kpi-strip, .scales-grid { grid-template-columns: repeat(2, 1fr); }
+      .options-grid { grid-template-columns: 1fr; }
+      .carta-sheet { padding: 36px 14px 26px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="carta-sheet">
+    <!-- Ornamentos esquineros -->
+    <svg class="corner-ornament corner-tl" viewBox="0 0 100 100" fill="none"><path d="M6 94V6H94" stroke="#E8D5BC" stroke-width="2.5"/><path d="M14 78V14H78" stroke="#E8D5BC" stroke-width="1.4"/><path d="M14 42C28 42 42 28 42 14" stroke="#E8D5BC" stroke-width="2"/><ellipse cx="43" cy="43" rx="8" ry="4" transform="rotate(45 43 43)" fill="#E8D5BC"/></svg>
+    <svg class="corner-ornament corner-tr" viewBox="0 0 100 100" fill="none"><path d="M6 94V6H94" stroke="#E8D5BC" stroke-width="2.5"/><path d="M14 78V14H78" stroke="#E8D5BC" stroke-width="1.4"/><path d="M14 42C28 42 42 28 42 14" stroke="#E8D5BC" stroke-width="2"/><ellipse cx="43" cy="43" rx="8" ry="4" transform="rotate(45 43 43)" fill="#E8D5BC"/></svg>
+    <svg class="corner-ornament corner-bl" viewBox="0 0 100 100" fill="none"><path d="M6 94V6H94" stroke="#E8D5BC" stroke-width="2.5"/><path d="M14 78V14H78" stroke="#E8D5BC" stroke-width="1.4"/><path d="M14 42C28 42 42 28 42 14" stroke="#E8D5BC" stroke-width="2"/><ellipse cx="43" cy="43" rx="8" ry="4" transform="rotate(45 43 43)" fill="#E8D5BC"/></svg>
+    <svg class="corner-ornament corner-br" viewBox="0 0 100 100" fill="none"><path d="M6 94V6H94" stroke="#E8D5BC" stroke-width="2.5"/><path d="M14 78V14H78" stroke="#E8D5BC" stroke-width="1.4"/><path d="M14 42C28 42 42 28 42 14" stroke="#E8D5BC" stroke-width="2"/><ellipse cx="43" cy="43" rx="8" ry="4" transform="rotate(45 43 43)" fill="#E8D5BC"/></svg>
+
+    <header class="carta-header">
+      <h1 class="carta-title">Carta Digital</h1>
+      <p class="carta-subtitle">— Creaciones a la carta de Atelier Mattia —</p>
+      <div class="carta-banner">Cotizador Interactivo de Bordados &amp; Escudos</div>
+      <div class="matias-greeting">
+        ¡Hola! Soy <strong>Matías</strong>. Deslizá las barras para simular tu pedido en vivo según nuestra Carta Digital (sin mínimo de cantidad) y enviame el resumen directo por WhatsApp.
+      </div>
+    </header>
+
+    <!-- KPIs Interactivos -->
+    <div class="kpi-strip">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Pedido</div>
+        <div class="kpi-val" id="kpi-total">$225.000</div>
+        <div class="kpi-sub" id="kpi-invoice-sub">Factura C (Neto)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Precio Unitario</div>
+        <div class="kpi-val" id="kpi-unit">$7.000</div>
+        <div class="kpi-sub" id="kpi-scale-sub">3° Escala (30 u.)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Matrices Netas</div>
+        <div class="kpi-val" id="kpi-matrices">$15.000</div>
+        <div class="kpi-sub" id="kpi-matrices-sub">1 bonif. / 1 paga</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Seña 50%</div>
+        <div class="kpi-val" id="kpi-deposit">$112.500</div>
+        <div class="kpi-sub" id="kpi-ship-sub">Envío Paq.ar GRATIS</div>
+      </div>
+    </div>
+
+    <!-- 1. ESCALAS -->
+    <section class="section-block">
+      <div class="section-heading">
+        <span>1. Escala de Precios (Tocá una escala para probarla)</span>
+        <span class="badge-pill">¡Sin mínimo de cantidad!</span>
+      </div>
+      <div class="scales-grid">
+        <div class="scale-card" id="sc-1" onclick="setSingleQty(5)">
+          <div class="scale-title">1° Escala</div>
+          <div class="scale-units">1 a 9 u.</div>
+          <div class="scale-amount" id="sc-p-1">$10.000</div>
+        </div>
+        <div class="scale-card" id="sc-2" onclick="setSingleQty(15)">
+          <div class="scale-title">2° Escala</div>
+          <div class="scale-units">10 a 19 u.</div>
+          <div class="scale-amount" id="sc-p-2">$8.500</div>
+        </div>
+        <div class="scale-card" id="sc-3" onclick="setSingleQty(20)">
+          <div class="scale-title">3° Escala</div>
+          <div class="scale-units">20 a 49 u.</div>
+          <div class="scale-amount" id="sc-p-3">$7.000</div>
+        </div>
+        <div class="scale-card" id="sc-4" onclick="setSingleQty(50)">
+          <div class="scale-title">4° Escala</div>
+          <div class="scale-units">50 u. o más</div>
+          <div class="scale-amount" id="sc-p-4">$5.000</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. DISEÑOS CON SLIDERS INTERACTIVOS -->
+    <section class="section-block">
+      <div class="section-heading">
+        <span>2. Diseños y Cantidades (Deslizá para ajustar)</span>
+        <span class="badge-pill">Matriz $15.000 · 100% BONIFICADA desde 20 u.</span>
+      </div>
+      <div class="presets-bar">
+        <button type="button" class="preset-chip" onclick="loadPreset('pdf')">Ejemplo Carta (20 Escudo A + 10 Escudo B)</button>
+        <button type="button" class="preset-chip" onclick="loadPreset('q15')">Probar 15 u. (Zona de Salto)</button>
+        <button type="button" class="preset-chip" onclick="loadPreset('q20')">1 Diseño × 20 u. (Matriz $0)</button>
+        <button type="button" class="preset-chip" onclick="loadPreset('q50')">Mayorista 50 u.</button>
+      </div>
+      <div id="designs-container"></div>
+      <button type="button" class="add-design-button" onclick="addDesign()">+ Sumar otro diseño distinto al pedido</button>
+    </section>
+
+    <!-- 3. OPCIONES + FACTURA A CON IVA APARTE -->
+    <section class="section-block">
+      <div class="section-heading">
+        <span>3. Terminación, Envío y Comprobante</span>
+      </div>
+      <div class="options-grid">
+        <div>
+          <span class="field-label">Base del parche</span>
+          <div class="toggle-group">
+            <button type="button" id="b-termo" class="active" onclick="setBacking('termo')">Termoadhesivo / Coser</button>
+            <button type="button" id="b-velcro" onclick="setBacking('velcro')">Con Velcro (+$1.000 c/u)</button>
+          </div>
+        </div>
+        <div>
+          <span class="field-label">Tipo de Factura</span>
+          <div class="toggle-group">
+            <button type="button" id="f-c" class="active" onclick="setInvoice('C')">Factura C (Final)</button>
+            <button type="button" id="f-a" onclick="setInvoice('A')">Factura A (+21% IVA aparte)</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Alerta interactiva con botón de acción en 1 clic -->
+    <div class="scale-alert" id="smart-alert"></div>
+
+    <!-- 4. LIQUIDACIÓN DETALLADA -->
+    <section class="quote-summary-card">
+      <div class="summary-line">
+        <span>Subtotal parches (<span id="sum-qty-text">30 u.</span>):</span>
+        <strong id="sum-patches">$210.000</strong>
+      </div>
+      <div class="summary-line">
+        <span>Matrices de digitalización:</span>
+        <strong id="sum-matrices">$15.000 (1 bonificada, 1 paga)</strong>
+      </div>
+      <div class="summary-line" id="row-net" style="display:none;">
+        <span>Monto Total Neto (sin IVA):</span>
+        <strong id="sum-net">$225.000</strong>
+      </div>
+      <div class="summary-line iva-row" id="row-iva" style="display:none;">
+        <span>+ IVA discriminado aparte (21% — Factura A):</span>
+        <strong id="sum-iva">+$47.250</strong>
+      </div>
+      <div class="summary-line grand-total">
+        <span id="sum-total-label">Total del Pedido (Factura C):</span>
+        <span id="sum-total">$225.000</span>
+      </div>
+    </section>
+
+    <!-- 5. GRÁFICO INTERACTIVO COMPARATIVO -->
+    <section class="section-block">
+      <div class="section-heading">
+        <span>Comparativa Interactiva por Escala</span>
+        <span class="badge-pill" id="chart-badge">Parches + Matriz</span>
+      </div>
+      <div class="chart-box">
+        <canvas id="quoteChart"></canvas>
+      </div>
+    </section>
+
+    <button type="button" class="btn-whatsapp" onclick="sendWA()">Enviar este presupuesto a Matías por WhatsApp</button>
+    <button type="button" class="btn-secondary-copy" id="copy-btn" onclick="copyText()">Copiar resumen al portapapeles</button>
+  </div>
+
+  <script>
+    const WA_PHONE = "5491100000000";
+    const MATRIX_COST = 15000;
+    const IVA_PCT = 0.21;
+
+    let state = {
+      backing: 'termo',
+      invoice: 'C',
+      designs: [
+        { id: 1, name: 'Escudo A', qty: 20 },
+        { id: 2, name: 'Escudo B', qty: 10 }
+      ]
+    };
+
+    let chartInstance = null;
+
+    function fmt(n) { return '$' + Math.round(n).toLocaleString('es-AR'); }
+
+    function getScale(qty, velcro) {
+      const v = velcro ? 1000 : 0;
+      if (qty <= 9) return { idx: 1, name: '1° Escala (1-9 u.)', price: 10000 + v };
+      if (qty <= 19) return { idx: 2, name: '2° Escala (10-19 u.)', price: 8500 + v };
+      if (qty <= 49) return { idx: 3, name: '3° Escala (20-49 u.)', price: 7000 + v };
+      return { idx: 4, name: '4° Escala (50+ u.)', price: 5000 + v };
+    }
+
+    function renderDesigns() {
+      const box = document.getElementById('designs-container');
+      box.innerHTML = '';
+      state.designs.forEach(d => {
+        const free = d.qty >= 20;
+        const badge = d.qty === 0
+          ? `<span class="matrix-pill paid">0 u.</span>`
+          : free
+            ? `<span class="matrix-pill free">✓ Matriz 100% BONIFICADA ($0)</span>`
+            : `<span class="matrix-pill paid">Matriz $15.000 (bonificada a las 20 u.)</span>`;
+
+        const delBtn = state.designs.length > 1
+          ? `<button type="button" class="qty-step-btn" style="width:auto;padding:0 8px;color:#FF9B85;" onclick="removeDesign(${d.id})">✕</button>`
+          : '';
+
+        const div = document.createElement('div');
+        div.className = 'design-row';
+        div.innerHTML = `
+          <div class="design-top">
+            <input type="text" class="design-name-input" value="${d.name}" onchange="renameDesign(${d.id}, this.value)" />
+            ${badge}
+          </div>
+          <div class="slider-wrap">
+            <button type="button" class="qty-step-btn" onclick="stepQty(${d.id}, -1)">−</button>
+            <input type="range" min="0" max="100" class="qty-slider" value="${Math.min(d.qty, 100)}" oninput="slideQty(${d.id}, this.value)" />
+            <button type="button" class="qty-step-btn" onclick="stepQty(${d.id}, 1)">+</button>
+            <input type="number" min="0" max="2000" class="qty-number-input" value="${d.qty}" oninput="slideQty(${d.id}, this.value)" />
+            ${delBtn}
+          </div>
+        `;
+        box.appendChild(div);
+      });
+    }
+
+    function updateAll() {
+      const velcro = state.backing === 'velcro';
+      const isA = state.invoice === 'A';
+      const vAdd = velcro ? 1000 : 0;
+
+      document.getElementById('sc-p-1').textContent = fmt(10000 + vAdd);
+      document.getElementById('sc-p-2').textContent = fmt(8500 + vAdd);
+      document.getElementById('sc-p-3').textContent = fmt(7000 + vAdd);
+      document.getElementById('sc-p-4').textContent = fmt(5000 + vAdd);
+
+      const active = state.designs.filter(d => d.qty > 0);
+      const totalQty = active.reduce((s, d) => s + d.qty, 0);
+      const sc = getScale(Math.max(totalQty, 1), velcro);
+
+      for (let i = 1; i <= 4; i++) {
+        document.getElementById('sc-' + i).classList.toggle('active', totalQty > 0 && sc.idx === i);
+      }
+
+      const patchesNet = totalQty * (totalQty > 0 ? sc.price : 0);
+      const freeCount = active.filter(d => d.qty >= 20).length;
+      const paidCount = active.filter(d => d.qty > 0 && d.qty < 20).length;
+      const matricesNet = paidCount * MATRIX_COST;
+      const netTotal = patchesNet + matricesNet;
+      const iva = isA ? Math.round(netTotal * IVA_PCT) : 0;
+      const grandTotal = netTotal + iva;
+      const dep50 = Math.round(grandTotal * 0.5);
+
+      document.getElementById('kpi-total').textContent = fmt(grandTotal);
+      document.getElementById('kpi-invoice-sub').textContent = isA ? `${fmt(netTotal)} + ${fmt(iva)} IVA` : 'Factura C (Final)';
+      document.getElementById('kpi-unit').textContent = fmt(sc.price);
+      document.getElementById('kpi-scale-sub').textContent = `${sc.name} (${totalQty} u.)`;
+      document.getElementById('kpi-matrices').textContent = fmt(matricesNet);
+      document.getElementById('kpi-matrices-sub').textContent = `${freeCount} bonif. / ${paidCount} paga`;
+      document.getElementById('kpi-deposit').textContent = fmt(dep50);
+      document.getElementById('kpi-ship-sub').textContent = totalQty >= 20 ? '✓ Envío Paq.ar GRATIS' : 'Retiro Haedo sin cargo';
+
+      document.getElementById('sum-qty-text').textContent = `${totalQty} u. a ${fmt(sc.price)} c/u`;
+      document.getElementById('sum-patches').textContent = fmt(patchesNet);
+      document.getElementById('sum-matrices').textContent = `${fmt(matricesNet)} (${freeCount} bonif., ${paidCount} paga)`;
+
+      document.getElementById('row-net').style.display = isA ? 'flex' : 'none';
+      document.getElementById('row-iva').style.display = isA ? 'flex' : 'none';
+      document.getElementById('sum-net').textContent = fmt(netTotal);
+      document.getElementById('sum-iva').textContent = '+' + fmt(iva);
+      document.getElementById('sum-total-label').textContent = isA
+        ? `Total Final Factura A (${fmt(netTotal)} + ${fmt(iva)} IVA):`
+        : 'Total del Pedido (Factura C):';
+      document.getElementById('sum-total').textContent = fmt(grandTotal);
+
+      // Alerta interactiva con botón de salto automático
+      const alertEl = document.getElementById('smart-alert');
+      if (active.length === 1 && totalQty >= 15 && totalQty <= 19) {
+        const net20 = 20 * (7000 + vAdd);
+        const sav = netTotal - net20;
+        alertEl.style.display = 'flex';
+        alertEl.innerHTML = `
+          <div>💡 <strong>¡Zona de Salto!</strong> Pidiendo <strong>20 u.</strong> bonificás la matriz ($15.000), activás envío gratis y el neto baja de ${fmt(netTotal)} a <strong>${fmt(net20)}</strong> (ahorrás ${fmt(sav)}).</div>
+          <button type="button" class="jump-btn" onclick="setSingleQty(20)">Saltar a 20 u. ahora</button>
+        `;
+      } else if (totalQty >= 36 && totalQty <= 49) {
+        const net50 = 50 * (5000 + vAdd) + matricesNet;
+        alertEl.style.display = 'flex';
+        alertEl.innerHTML = `
+          <div>💡 <strong>¡Salto Mayorista!</strong> Pasando a <strong>50 u.</strong> activás la 4° Escala (${fmt(5000 + vAdd)} c/u) y pagás <strong>${fmt(net50)} netos</strong> (${fmt(netTotal - net50)} menos).</div>
+          <button type="button" class="jump-btn" onclick="setSingleQty(50)">Saltar a 50 u. ahora</button>
+        `;
+      } else {
+        alertEl.style.display = 'none';
+      }
+
+      updateChart(patchesNet, matricesNet, iva, isA, velcro);
+    }
+
+    function updateChart(userPatches, userMatrices, userIva, isA, velcro) {
+      const v = velcro ? 1000 : 0;
+      const refQtys = [10, 15, 20, 50];
+      const labels = ['Tu Pedido Actual', '10 u. (2° Esc.)', '15 u. (2° Esc.)', '20 u. (Matriz $0)', '50 u. (4° Esc.)'];
+
+      const patchesArr = [userPatches];
+      const matrixArr = [userMatrices];
+      const ivaArr = [userIva];
+
+      refQtys.forEach(q => {
+        const sc = getScale(q, velcro);
+        const p = q * sc.price;
+        const m = q >= 20 ? 0 : 15000;
+        const iv = isA ? Math.round((p + m) * IVA_PCT) : 0;
+        patchesArr.push(p);
+        matrixArr.push(m);
+        ivaArr.push(iv);
+      });
+
+      const ctx = document.getElementById('quoteChart').getContext('2d');
+      if (chartInstance) chartInstance.destroy();
+
+      const datasets = [
+        { label: 'Parches (Neto)', data: patchesArr, backgroundColor: '#D9A75A', borderRadius: 6 },
+        { label: 'Matriz ($15k)', data: matrixArr, backgroundColor: '#A86434', borderRadius: 6 }
+      ];
+      if (isA) {
+        datasets.push({ label: '+ IVA 21% Aparte', data: ivaArr, backgroundColor: '#8CE99A', borderRadius: 6 });
+      }
+
+      chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { stacked: true, ticks: { color: '#FAF3E8' }, grid: { display: false } },
+            y: { stacked: true, ticks: { color: '#E8D5BC', callback: v => '$' + (v/1000) + 'k' }, grid: { color: 'rgba(232,213,188,0.12)' } }
+          },
+          plugins: {
+            legend: { labels: { color: '#FAF3E8' } }
+          }
+        }
+      });
+    }
+
+    function slideQty(id, val) {
+      const d = state.designs.find(x => x.id === id);
+      if (!d) return;
+      d.qty = Math.max(0, parseInt(val, 10) || 0);
+      renderDesigns();
+      updateAll();
+    }
+
+    function stepQty(id, delta) {
+      const d = state.designs.find(x => x.id === id);
+      if (!d) return;
+      d.qty = Math.max(0, d.qty + delta);
+      renderDesigns();
+      updateAll();
+    }
+
+    function renameDesign(id, val) {
+      const d = state.designs.find(x => x.id === id);
+      if (d) d.name = val.trim() || 'Diseño';
+      updateAll();
+    }
+
+    function addDesign() {
+      const idx = state.designs.length;
+      const letters = ['A', 'B', 'C', 'D', 'E'];
+      state.designs.push({ id: Date.now(), name: 'Escudo ' + (letters[idx] || idx + 1), qty: 10 });
+      renderDesigns();
+      updateAll();
+    }
+
+    function removeDesign(id) {
+      if (state.designs.length <= 1) return;
+      state.designs = state.designs.filter(x => x.id !== id);
+      renderDesigns();
+      updateAll();
+    }
+
+    function setSingleQty(q) {
+      state.designs = [{ id: 1, name: 'Escudo A', qty: q }];
+      renderDesigns();
+      updateAll();
+    }
+
+    function loadPreset(p) {
+      if (p === 'pdf') state.designs = [{ id: 1, name: 'Escudo A', qty: 20 }, { id: 2, name: 'Escudo B', qty: 10 }];
+      if (p === 'q15') state.designs = [{ id: 1, name: 'Escudo A', qty: 15 }];
+      if (p === 'q20') state.designs = [{ id: 1, name: 'Escudo A', qty: 20 }];
+      if (p === 'q50') state.designs = [{ id: 1, name: 'Escudo A', qty: 50 }];
+      renderDesigns();
+      updateAll();
+    }
+
+    function setBacking(b) {
+      state.backing = b;
+      document.getElementById('b-termo').classList.toggle('active', b === 'termo');
+      document.getElementById('b-velcro').classList.toggle('active', b === 'velcro');
+      updateAll();
+    }
+
+    function setInvoice(inv) {
+      state.invoice = inv;
+      document.getElementById('f-c').classList.toggle('active', inv === 'C');
+      document.getElementById('f-a').classList.toggle('active', inv === 'A');
+      updateAll();
+    }
+
+    function buildMsg() {
+      const active = state.designs.filter(d => d.qty > 0);
+      const totalQty = active.reduce((s, d) => s + d.qty, 0);
+      const sc = getScale(Math.max(totalQty, 1), state.backing === 'velcro');
+      const patchesNet = totalQty * sc.price;
+      const paidCount = active.filter(d => d.qty > 0 && d.qty < 20).length;
+      const matricesNet = paidCount * MATRIX_COST;
+      const netTotal = patchesNet + matricesNet;
+      const isA = state.invoice === 'A';
+      const iva = isA ? Math.round(netTotal * IVA_PCT) : 0;
+      const grand = netTotal + iva;
+
+      const list = active.map(d => `  • ${d.name}: ${d.qty} u. (${d.qty >= 20 ? 'Matriz BONIFICADA $0' : 'Matriz $15.000'})`).join('\n');
+      const bill = isA
+        ? `• *Factura A:* Neto ${fmt(netTotal)} + IVA (21% aparte) ${fmt(iva)} = *${fmt(grand)}*`
+        : `• *Factura C (Total Final):* *${fmt(grand)}*`;
+
+      return `¡Hola Matías! Simulé este pedido en la Carta Digital de *Atelier Mattia*:\n\n${list}\n\n• *Total:* ${totalQty} u. (${sc.name} a ${fmt(sc.price)} c/u)\n${bill}\n• *Seña 50%:* ${fmt(grand * 0.5)}`;
+    }
+
+    function sendWA() {
+      window.open(`https://wa.me/${WA_PHONE}?text=${encodeURIComponent(buildMsg())}`, '_blank');
+    }
+
+    function copyText() {
+      navigator.clipboard.writeText(buildMsg().replace(/\*/g, ''));
+      const b = document.getElementById('copy-btn');
+      b.textContent = '✓ ¡Copiado al portapapeles!';
+      setTimeout(() => b.textContent = 'Copiar resumen al portapapeles', 2000);
+    }
+
+    renderDesigns();
+    updateAll();
+  </script>
+</body>
+</html>
